@@ -1,3 +1,5 @@
+To test add the hn_logs.tsv file to the directory and run python3.6 server.py
+
 # Thought process
 - The TSV file looks like it has only two columns: search_timestamp & search_query
 - The good practice would be to put that into a SQL database (potentially not the best performance but likely good enough and it easy to develop, maintain, and evolve features)
@@ -14,7 +16,3 @@
   
   
   
-
-### Draft
-
-- The date_prefix search can be done using a Trie, popularity search by having the most popular queries in a sorted array, but the difficulty of course is to combine the two.
