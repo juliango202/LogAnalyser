@@ -96,8 +96,8 @@ class TrieNode(object):
 
 class Trie(object):
     """Trie of timestamps
-    Insertion and query of timestamp prefix is very fast but there is
-    a large space complexity: years * 12 * 31 * 24 * 60 * 60 potential leaves,
+    Insertion and query of timestamp prefix is very fast but there is a large space
+    complexity: years * 12 * 31 * 24 * 60 * 60 potential leaves(a bit more nodes),
     and at each node we store pointers for the top k queries"""
     def __init__(self):
         self.root = TrieNode()
@@ -155,7 +155,7 @@ class Trie(object):
         self.query_store.finalize()
 
     def top_queries_by_prefix(self, prefix, size):
-        logging.info(f"Get the top {size} popular queries that have been done during {prefix}.")
+        logging.info(f"Get the top {size} popular queries that have been done with date prefix {prefix}.")
         if size > TOP_QUERIES_SIZE_K:
             raise InvalidQuerySize(f"The maximum size supported for this query is {TOP_QUERIES_SIZE_K}")
         node = self.get_node_at_prefix(prefix)
@@ -166,7 +166,7 @@ class Trie(object):
         return [(self.query_store.get(tq.id).query_text, tq.count) for tq in top_queries]
 
     def distinct_queries_by_prefix(self, prefix):
-        logging.info(f"Get the number of distinct queries that have been done during {prefix}.")
+        logging.info(f"Get the number of distinct queries that have been done with date prefix {prefix}.")
         node = self.get_node_at_prefix(prefix)
         if not node:
             return 0

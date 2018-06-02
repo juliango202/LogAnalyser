@@ -13,6 +13,8 @@ TOP_QUERY_SIZE_PARAM = "size"
 
 
 def make_handler(log_analyser):
+    """A small web server for our log analyser demo
+    """
     class LogAnalyserHandler(BaseHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
             self.log_analyser = log_analyser
@@ -28,27 +30,31 @@ def make_handler(log_analyser):
         def do_GET(self):
             try:
                 if self.path.startswith(COUNT_QUERY_PATH):
-                    date_prefix = self.path.split("/")[-1]
-                    data = self.log_analyser.distinct_queries_by_prefix(date_prefix)
-                    self.send_in_json(data)
-                    return
-
-                if self.path.startswith(TOP_QUERY_PATH):
-                    base_path, query_string = self.get_path_parts()
-                    if not query_string or TOP_QUERY_SIZE_PARAM not in query_string:
-                        self.send_error(400, f"The '{TOP_QUERY_SIZE_PARAM}' query string parameter is missing.")
-                        return
-                    date_prefix = base_path.split("/")[-1]
-                    size = int(query_string[TOP_QUERY_SIZE_PARAM][0])
-                    data = self.log_analyser.top_queries_by_prefix(date_prefix, size)
-                    self.send_in_json(data)
-
+                    self.get_distinct_queries()
+                elif self.path.startswith(TOP_QUERY_PATH):
+                    self.get_top_queries()
+                else:
+                    self.send_error(404)
             except (InvalidQuerySize, InvalidDatePrefix) as exc:
                 self.send_error(400, str(exc))
-                return
 
-            # No action found => 404
-            self.send_error(404)
+        def get_distinct_queries(self):
+            date_prefix = self.path.split("/")[-1]
+            data = self.log_analyser.distinct_queries_by_prefix(date_prefix)
+            self.send_in_json(data)
+
+        def get_top_queries(self):
+            base_path, query_string = self.get_path_parts()
+            if not query_string or TOP_QUERY_SIZE_PARAM not in query_string:
+                self.send_error(400, f"The '{TOP_QUERY_SIZE_PARAM}' query string parameter is missing")
+                return
+            if not query_string[TOP_QUERY_SIZE_PARAM][0].isnumeric():
+                self.send_error(400, f"The '{TOP_QUERY_SIZE_PARAM}' query string parameter is missing")
+                return
+            date_prefix = base_path.split("/")[-1]
+            size = int(query_string[TOP_QUERY_SIZE_PARAM][0])
+            data = self.log_analyser.top_queries_by_prefix(date_prefix, size)
+            self.send_in_json(data)
 
         def send_in_json(self, data):
             """Send data encoded as JSON"""
